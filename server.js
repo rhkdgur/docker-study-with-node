@@ -1,40 +1,12 @@
-const express = require("express");
-const redis = require("redis");
-
-//redis client 생성
-const client = redis.createClient({
-    socket: {
-        host: 'redis-server',
-        port: '6379'
-    }
-})
-
-const port = 8080;
-
-//APP
+const express = require('express');
+const path = require('path');
 const app = express();
+const port = 3000;
 
-app.get('/', async (req, res) => {
+// 정적 파일을 서빙하기 위한 폴더 설정
+app.use(express.static('public'));
 
-await client.connect();
-
-let number = await client.get('number');
-
-if (number === null) {
-
-number = 0;
-
-}
-
-console.log('Number: ' + number);
-
-res.send("숫자가 1씩 올라갑니다. 숫자: " + number)
-
-await client.set("number", parseInt(number) + 1)
-
-await client.disconnect();;;
-
-})
-
-app.listen(port);
-console.log("Server is Running");
+// 서버 실행
+app.listen(port, () => {
+    console.log(`서버가 포트 ${port}에서 실행 중입니다.`);
+});
