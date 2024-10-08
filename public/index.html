@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>File Upload</title>
+</head>
+<body>
+
+  <!-- 입력 필드: Challenge JSON 데이터와 파일 -->
+  <form id="challengeForm">
+    <label for="challengeData">Challenge Data:</label>
+    <textarea id="challengeData" rows="4" cols="50"></textarea>
+    <br>
+
+    <label for="fileInput">Upload File:</label>
+    <input type="file" id="fileInput">
+    <br><br>
+
+    <button type="button" id="submitButton">Submit Challenge</button>
+  </form>
+
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script>
+    document.getElementById('submitButton').addEventListener('click', async function() {
+      const challengeData = document.getElementById('challengeData').value; // 텍스트 데이터
+      const fileInput = document.getElementById('fileInput').files[0]; // 선택된 파일
+      const token = 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhYUBnbWFpbC5jb20iLCJpZCI6ImFhIiwiZXhwIjoxNzI4MzczOTg5LCJpYXQiOjE3MjgyODc1ODl9.Tr_7eDCQ2_G3Mr0x0gxLnMfxNBUUrSlK9ad9fuAFllA';  // 인증 토큰 (실제 토큰으로 변경)
+
+      // JSON 데이터를 JavaScript 객체로 변환
+      const challengeCreateRequest = JSON.parse(challengeData);
+
+      // 파일과 데이터를 전송하는 함수 호출
+      await uploadChallenge(token, challengeCreateRequest, fileInput);
+    });
+
+    async function uploadChallenge(token, challengeData, file) {
+      const formData = new FormData();
+
+      // ChallengeCreateRequest 데이터를 formData에 추가
+      formData.append('challengeCreateRequest', new Blob([JSON.stringify(challengeData)], { type: 'application/json' }));
+      
+      // 파일 추가 (여기서는 'file'이 업로드할 파일 객체)
+      if (file) {
+        formData.append('_file', file);
+      }
+
+      try {
+        const response = await axios.post('http://localhost:8080/challenge/ins', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            'Authorization': `Bearer ${token}`,  // 토큰을 헤더로 전달
+          },
+        });
+
+        console.log(response.data);  // 서버에서 받은 응답
+      } catch (error) {
+        console.error('Error uploading challenge:', error);
+      }
+    }
+  </script>
+
+</body>
+</html>
